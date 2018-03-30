@@ -1,0 +1,15 @@
+<div class="panel panel-default">
+	<div class="panel-heading">Login</div>
+	<div class="panel-body">
+		<div>
+			<md-input-container> <input mdInput [(ngModel)]="userId" placeholder="UserId"> </md-input-container>
+		</div>
+		<div>
+			<md-input-container> <input type="password" mdInput [(ngModel)]="password" placeholder="Password"> </md-input-container>
+		</div>
+		<button md-button (click)="doLogin()">Login</button>
+		<button md-button>Cancel</button>
+
+	</div>
+</div>
+
