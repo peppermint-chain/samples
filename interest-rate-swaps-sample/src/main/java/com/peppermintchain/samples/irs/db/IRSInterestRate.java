@@ -10,6 +10,9 @@ import com.peppermintchain.core.annotations.PMCPrimaryKey;
 @PMCPrimaryKey({ "INDEX_NAME", "PERIOD", "VALID_FOR_DATE" })
 public class IRSInterestRate {
 
+    @PMCName("SOURCE")
+    private String source;
+
     @PMCName("INDEX_NAME")
     private String indexName;
 
@@ -52,6 +55,14 @@ public class IRSInterestRate {
 
     public void setInterestRate(BigDecimal interestRate) {
 	this.interestRate = interestRate;
+    }
+
+    public String getSource() {
+	return source;
+    }
+
+    public void setSource(String source) {
+	this.source = source;
     }
 
 }

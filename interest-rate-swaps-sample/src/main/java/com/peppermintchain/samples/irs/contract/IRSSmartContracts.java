@@ -1,12 +1,12 @@
 package com.peppermintchain.samples.irs.contract;
 
-
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.temporal.ChronoUnit;
@@ -18,12 +18,12 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.peppermintchain.samples.irs.db.IRSContract;
-import com.peppermintchain.samples.irs.db.IRSContractFlow;
-import com.peppermintchain.samples.irs.db.IRSContractProposal;
 import com.peppermintchain.core.annotations.PMCContract;
 import com.peppermintchain.core.annotations.PMCEndPoint;
 import com.peppermintchain.core.contracts.PMCContractContext;
+import com.peppermintchain.samples.irs.db.IRSContract;
+import com.peppermintchain.samples.irs.db.IRSContractFlow;
+import com.peppermintchain.samples.irs.db.IRSContractProposal;
 
 @PMCContract
 public class IRSSmartContracts {
@@ -31,31 +31,29 @@ public class IRSSmartContracts {
     private static final String FIND_PROPOSAL_WITH_PK_SQL = "SELECT * FROM BLOCKCHAIN.IRS_CONTRACT_PROPOSAL  WHERE CONTRACT_ID = ?  AND BUYER_ID = ? AND SELLER_ID = ? AND PROPOSED_BY = ?";
     private static final String FIND_CONTRACT_WITH_PK_SQL = "SELECT * FROM BLOCKCHAIN.IRS_CONTRACT  WHERE CONTRACT_ID = ?  AND BUYER_ID = ? AND SELLER_ID = ? ";
     private static final String FIND_INTEREST_RATE_WITH_PK_SQL = "SELECT INTEREST_RATE FROM BLOCKCHAIN.IRS_INTEREST_RATE  WHERE INDEX_NAME = ? AND PERIOD = ? AND VALID_FOR_DATE = ?";
-    private static final String INSERT_INTEREST_RATE_SQL = "INSERT INTO BLOCKCHAIN.IRS_INTEREST_RATE (INDEX_NAME, PERIOD, INTEREST_RATE , VALID_FOR_DATE ) VALUES(?,?, ?,?)";
+    private static final String INSERT_INTEREST_RATE_SQL = "INSERT INTO BLOCKCHAIN.IRS_INTEREST_RATE (SOURCE, INDEX_NAME, PERIOD, INTEREST_RATE , VALID_FOR_DATE ) VALUES(?,?, ?,?, ?)";
 
     @PMCEndPoint("addInterestRate")
     public void addInterestRate(PMCContractContext ctx, Map<String, String> params) throws Exception {
 	String proposingNode = ctx.getProposer().getNodeId();
-	//if (!"DevOrg".equalsIgnoreCase(proposingNode)) {
-	//    throw new IllegalArgumentException(proposingNode + " cannot add rates!");
-	//}
 	try (PreparedStatement pstmt = ctx.getDBConnection().prepareStatement(INSERT_INTEREST_RATE_SQL)) {
-	    pstmt.setString(1, params.get("indexName"));
-	    pstmt.setString(2, params.get("period"));
-	    pstmt.setString(3, params.get("interestRate"));
-	    pstmt.setString(4, params.get("validForDate"));
+	    pstmt.setString(1, proposingNode);
+	    pstmt.setString(2, params.get("indexName"));
+	    pstmt.setString(3, params.get("period"));
+	    pstmt.setString(4, params.get("interestRate"));
+	    pstmt.setString(5, params.get("validForDate"));
 	    pstmt.executeUpdate();
 	}
     }
 
     @PMCEndPoint("proposeContract")
     public void processProposal(PMCContractContext ctx, Map<String, String> params) throws Exception {
-	System.err.println("Inputs to processProposal = "+params);
+	System.err.println("Inputs to processProposal = " + params);
 	String userId = ctx.getProposer().getAttribute("user");
 	long stime = System.currentTimeMillis();
 	long time2 = 0, time3 = 0, time4 = 0;
 	try {
-	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	    IRSContractProposal proposal = new IRSContractProposal();
 	    setValues(params, sdf, proposal);
 	    time2 = System.currentTimeMillis();
@@ -204,7 +202,7 @@ public class IRSSmartContracts {
 	proposal.setFloatingRateSpread(new BigDecimal(params.get("floatingRateSpread")));
 	String mdStr = params.get("maturityDate");
 	Date md = sdf.parse(mdStr);
-	System.err.println("Maturity Date Got ["+mdStr+"] got parsed to ["+md+"]");
+	System.err.println("Maturity Date Got [" + mdStr + "] got parsed to [" + md + "]");
 	proposal.setMaturityDate(md);
 	proposal.setNotionalAmount(new BigDecimal(params.get("notionalAmount")));
 	proposal.setProposedBy(params.get("proposedBy"));

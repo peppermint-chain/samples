@@ -27,8 +27,8 @@ export class OpenOffersComponent implements OnInit, OnDestroy {
     tmpOffer.couponFrequency = 'Monthly';
     tmpOffer.fixedLegRate = '2.0';
     tmpOffer.floatingRateIndex = 'LIBOR';
-    tmpOffer.maturityDate = new Date('2019-02-28T00:00:00.000-08:00');
-    tmpOffer.startDate = new Date('2018-03-01T00:00:00.000-08:00');
+    tmpOffer.maturityDate = new Date('2019-02-28T00:00:00.000-05:00');
+    tmpOffer.startDate = new Date('2018-03-01T00:00:00.000-05:00');
     tmpOffer.proposedBy = this.appState.NodeName;
     tmpOffer.notionalAmount = '10000000';
     tmpOffer.floatingRateSpread = '0.5';
@@ -82,12 +82,6 @@ export class OpenOffersComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    const a: string = "2019-02-28T00:00:00.000Z";
-    const b: string = "2019-02-28T00:00:00.000-0500";
-    var d = (new Date(a));
-    var abc = d.toJSON();
-    //alert(a+" = "+(new Date(a)));
-    //alert(b+" = "+(new Date(b)));
     this.appState = this.backendService.getState();
     this.backendService.loadState();
     this.refreshOffers();
@@ -105,12 +99,13 @@ export class OpenOffersComponent implements OnInit, OnDestroy {
   }
   
   acceptOffer(offer: Offer): void {
-    var abc: any = offer;
-    offer.proposedBy = this.appState.NodeName;
-    offer.fixedLegRate = ""+offer.fixedLegRate;
-    offer.floatingRateSpread = ""+abc.floatingRateSpread;
-    this.backendService.addNewOffer(offer).then((o2: any) => {
-      this.backendService.fireEvent('refreshAll');
+    var newOffer = Object.assign({},offer);
+    newOffer.proposedBy = this.appState.NodeName;
+    newOffer.fixedLegRate = ""+offer.fixedLegRate;
+    newOffer.floatingRateSpread = ""+newOffer.floatingRateSpread;
+    var self = this;
+    this.backendService.addNewOffer(newOffer).then((o2: any) => {
+      self.refreshOffers();
     });
   }
 }

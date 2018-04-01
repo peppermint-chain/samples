@@ -1,18 +1,18 @@
 {
   "/admin/api/*": {
-    "target": "http://localhost:15000",
+    "target": "http://localhost:40000",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true
   },
   "/api/*": {
-    "target": "http://localhost:15000",
+    "target": "http://localhost:40000",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true
   },
   "/com.peppermintchain.samples.irs/api/*": {
-    "target": "http://localhost:15000",
+    "target": "http://localhost:40000",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true
